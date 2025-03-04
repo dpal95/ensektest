@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using ensektest.Entities;
 using ensektest.Models;
+using ensektest.Repositories;
 using ensektest.Responces;
 using System;
 using System.Formats.Asn1;
@@ -9,8 +10,14 @@ using System.Globalization;
 
 namespace ensektest.Services
 {
-    public class MeterReadingService
+    public class MeterReadingService : IMeterReadingService
     {
+        public readonly IMeterReadingRepo _meterReadingRepo;
+        public MeterReadingService(IMeterReadingRepo meterReadingRepo)        
+        { 
+            _meterReadingRepo = meterReadingRepo; 
+        
+        }
         private bool IsValidReading(decimal reading)
         {
             if (reading < 0)
@@ -72,10 +79,38 @@ namespace ensektest.Services
         }
 
 
-        //public MeterReadingResponse SaveMeterReading()
-        //{
+        public MeterReadingResponse SaveMeterReading(MeterReadingModel meterReading)
+        {
+            var checkAccount = GetCustomerAccount(meterReading.AccountId);
 
-        //}
+            if (checkAccount != null)
+            {
+                if(!CheckForReading(meterReading.MeterReadValue, meterReading.AccountId))
+                {
+                    MeterReading meterWrite = new MeterReading()
+                    {
+                        AccountId = meterReading.AccountId,
+                        MeterReadingDateTime = meterReading.MeterReadingDateTime,
+                        MeterReadValue = meterReading.MeterReadValue,
+                    };
+                    _meterReadingRepo.SaveMeterReading(meterWrite);//save reading 
+                };
+
+            }
+            return new MeterReadingResponse();
+        }
+
+        private CustomerAccountModel GetCustomerAccount(int accountNum)
+        {
+            var account = _meterReadingRepo.GetCustomerAccount(accountNum);
+
+            return new CustomerAccountModel(account.AccountId, account.Firstname,account.LastName);
+        }
+
+        private bool CheckForReading(decimal readValue, int accountNum)
+        {
+            return _meterReadingRepo.CheckForReading(readValue, accountNum);
+        }
 
     }
 

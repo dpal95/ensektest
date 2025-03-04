@@ -10,11 +10,11 @@ namespace ensektest.Controllers
     public class MeterReadingController : ControllerBase
     {       
         private readonly ILogger<MeterReadingController> _logger;
-        private readonly MeterReadingService _meterReadingService;
-        public MeterReadingController(ILogger<MeterReadingController> logger)
+        private readonly IMeterReadingService _meterReadingService;
+        public MeterReadingController(ILogger<MeterReadingController> logger, IMeterReadingService meterReadingService)
         {
             _logger = logger;
-            _meterReadingService = new MeterReadingService();
+            _meterReadingService = meterReadingService;
         }
 
         [HttpPost(Name = "meter-reading-uploads")]
@@ -22,6 +22,10 @@ namespace ensektest.Controllers
         {
            var response = _meterReadingService.ReadCsvFile(@"C:\\Users\\dpalu\\Downloads\\ENSEK Remote Technical Task Brief\\Meter_Reading.csv");
 
+            foreach (var item in response.SuccessReadings)
+            {
+                _meterReadingService.SaveMeterReading(item);
+            }
 
           return response;
         }

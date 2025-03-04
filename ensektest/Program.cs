@@ -1,4 +1,7 @@
 using ensektest.Context;
+using ensektest.Repositories;
+using ensektest.Services;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +12,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Choose database provider
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<DataContext>();
+builder.Services.AddScoped<IMeterReadingRepo, MeterReadingRepo>();
+builder.Services.AddScoped<IMeterReadingService, MeterReadingService>();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
