@@ -1,5 +1,14 @@
+using ensektest.Context;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Get the connection string from appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Choose database provider
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(connectionString));
 // Add services to the container.
 
 builder.Services.AddControllers();

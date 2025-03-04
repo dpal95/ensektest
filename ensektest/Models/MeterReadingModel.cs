@@ -1,15 +1,16 @@
 namespace ensektest.Models
 {
-    public class MeterReading
+    public class MeterReadingModel
     {
-        public MeterReading(string accountId, DateTime meterReadingDateTime, decimal meterReadValue) 
+        public MeterReadingModel() { }   
+        public MeterReadingModel(int accountId, DateTime meterReadingDateTime, decimal meterReadValue) 
         { 
             AccountId = accountId;
             MeterReadingDateTime = meterReadingDateTime;
             MeterReadValue = meterReadValue;
         }
 
-        public string AccountId { get; set; }
+        public int AccountId { get; set; }
 
         public DateTime MeterReadingDateTime { get; set; }
 
