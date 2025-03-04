@@ -13,10 +13,10 @@ namespace ensektest.Services
     public class MeterReadingService : IMeterReadingService
     {
         public readonly IMeterReadingRepo _meterReadingRepo;
-        public MeterReadingService(IMeterReadingRepo meterReadingRepo)        
-        { 
-            _meterReadingRepo = meterReadingRepo; 
-        
+        public MeterReadingService(IMeterReadingRepo meterReadingRepo)
+        {
+            _meterReadingRepo = meterReadingRepo;
+
         }
         private bool IsValidReading(decimal reading)
         {
@@ -32,9 +32,9 @@ namespace ensektest.Services
             return true;
         }
 
-        public MeterReadingResponse ReadCsvFile(string filePath)
+        public CsvReadResponse ReadCsvFile(string filePath)
         {
-            MeterReadingResponse response = new MeterReadingResponse();
+            CsvReadResponse response = new CsvReadResponse();
             try
             {
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -78,14 +78,53 @@ namespace ensektest.Services
             return response;
         }
 
+        public CsvReadResponse ReadAccountCsvFile(string filePath)
+        {
+            CsvReadResponse response = new CsvReadResponse();
+            try
+            {
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ",", // Ensure it matches your CSV delimiter
+                    HasHeaderRecord = true, // If your CSV has headers
+                    MissingFieldFound = null, // Prevent errors for missing fields
+                    HeaderValidated = null // Ignore incorrect headers
+                };
+                using (var reader = new StreamReader(filePath))
+                using (var csv = new CsvReader(reader, config))
+                {
 
-        public MeterReadingResponse SaveMeterReading(MeterReadingModel meterReading)
+                    try
+                    {
+                        var records = csv.GetRecords<CustomerAccount>();
+
+                        _meterReadingRepo.SaveSeedData(records);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                        response.FailureReadings++;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading file: {ex.Message}");
+            }
+
+            return response;
+        }
+
+
+        public bool SaveMeterReading(MeterReadingModel meterReading)
         {
             var checkAccount = GetCustomerAccount(meterReading.AccountId);
 
             if (checkAccount != null)
             {
-                if(!CheckForReading(meterReading.MeterReadValue, meterReading.AccountId))
+                if (!CheckForReading(meterReading.MeterReadValue, meterReading.AccountId))
                 {
                     MeterReading meterWrite = new MeterReading()
                     {
@@ -94,17 +133,24 @@ namespace ensektest.Services
                         MeterReadValue = meterReading.MeterReadValue,
                     };
                     _meterReadingRepo.SaveMeterReading(meterWrite);//save reading 
+
+                    return true;
                 };
 
             }
-            return new MeterReadingResponse();
+            return false;
         }
 
-        private CustomerAccountModel GetCustomerAccount(int accountNum)
+        private CustomerAccountModel? GetCustomerAccount(int accountNum)
         {
             var account = _meterReadingRepo.GetCustomerAccount(accountNum);
 
-            return new CustomerAccountModel(account.AccountId, account.Firstname,account.LastName);
+            if (account != null)
+            {
+                return new CustomerAccountModel(account.AccountId, account.FirstName, account.LastName);
+            }
+            else
+                return null;
         }
 
         private bool CheckForReading(decimal readValue, int accountNum)
@@ -114,7 +160,7 @@ namespace ensektest.Services
 
     }
 
-public class MeterReadingMap : ClassMap<MeterReadingModel>
+    public class MeterReadingMap : ClassMap<MeterReadingModel>
     {
         public MeterReadingMap()
         {

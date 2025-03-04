@@ -11,9 +11,10 @@ namespace ensektest.Services
 {
     public interface IMeterReadingService
     {
-        public MeterReadingResponse ReadCsvFile(string filePath);
+        public CsvReadResponse ReadCsvFile(string filePath);
+        public CsvReadResponse ReadAccountCsvFile(string filePath);
 
-        public MeterReadingResponse SaveMeterReading(MeterReadingModel meterReading);
+        public bool SaveMeterReading(MeterReadingModel meterReading);
         
 
     }

@@ -24,7 +24,11 @@ namespace ensektest.Repositories
 
 
         public bool CheckForReading(decimal readValue, int accountNum);
-        
+
+        public void SaveSeedData(IEnumerable<CustomerAccount> customerAccounts);
+
+
+
 
     }
 

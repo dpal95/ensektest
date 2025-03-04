@@ -24,14 +24,17 @@ namespace ensektest.Migrations
 
             modelBuilder.Entity("ensektest.Entities.CustomerAccount", b =>
                 {
-                    b.Property<int>("AccountId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
                         .HasMaxLength(50)
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"));
-
-                    b.Property<string>("Firstname")
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -41,7 +44,7 @@ namespace ensektest.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("AccountId");
+                    b.HasKey("Id");
 
                     b.ToTable("CustomerAccounts");
                 });
@@ -68,25 +71,7 @@ namespace ensektest.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
                     b.ToTable("MeterReadings");
-                });
-
-            modelBuilder.Entity("ensektest.Entities.MeterReading", b =>
-                {
-                    b.HasOne("ensektest.Entities.CustomerAccount", "CustomerAccount")
-                        .WithMany("MeterReadings")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CustomerAccount");
-                });
-
-            modelBuilder.Entity("ensektest.Entities.CustomerAccount", b =>
-                {
-                    b.Navigation("MeterReadings");
                 });
 #pragma warning restore 612, 618
         }

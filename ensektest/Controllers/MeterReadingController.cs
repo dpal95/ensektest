@@ -17,17 +17,29 @@ namespace ensektest.Controllers
             _meterReadingService = meterReadingService;
         }
 
-        [HttpPost(Name = "meter-reading-uploads")]
+        [HttpPost("meter-reading-uploads")]
         public MeterReadingResponse MeterReadingUploads()
         {
            var response = _meterReadingService.ReadCsvFile(@"C:\\Users\\dpalu\\Downloads\\ENSEK Remote Technical Task Brief\\Meter_Reading.csv");
-
+            MeterReadingResponse responseResponse = new MeterReadingResponse() { FailureReadings = response.FailureReadings};
             foreach (var item in response.SuccessReadings)
             {
-                _meterReadingService.SaveMeterReading(item);
+                if(_meterReadingService.SaveMeterReading(item))
+                {
+                    responseResponse.SuccessReadings++;
+                    continue;
+                }
+                responseResponse.FailureReadings++;
             }
 
-          return response;
+          return responseResponse;
+        }
+
+        [HttpPost("seed")]
+        public MeterReadingResponse SeedDb()
+        {
+            var response = _meterReadingService.ReadAccountCsvFile(@"C:\\Users\\dpalu\\Downloads\\ENSEK Remote Technical Task Brief\\Test_Accounts.csv");
+            return new MeterReadingResponse();
         }
     }
 }

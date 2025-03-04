@@ -14,7 +14,5 @@ namespace ensektest.Entities
         [MaxLength(50)]
         public decimal MeterReadValue { get; set; }
 
-        public CustomerAccount CustomerAccount { get; set; }
-
     }
 }

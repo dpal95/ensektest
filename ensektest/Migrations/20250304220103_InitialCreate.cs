@@ -15,14 +15,15 @@ namespace ensektest.Migrations
                 name: "CustomerAccounts",
                 columns: table => new
                 {
-                    AccountId = table.Column<int>(type: "int", maxLength: 50, nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Firstname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    AccountId = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerAccounts", x => x.AccountId);
+                    table.PrimaryKey("PK_CustomerAccounts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -38,28 +39,17 @@ namespace ensektest.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MeterReadings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MeterReadings_CustomerAccounts_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "CustomerAccounts",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MeterReadings_AccountId",
-                table: "MeterReadings",
-                column: "AccountId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MeterReadings");
+                name: "CustomerAccounts");
 
             migrationBuilder.DropTable(
-                name: "CustomerAccounts");
+                name: "MeterReadings");
         }
     }
 }

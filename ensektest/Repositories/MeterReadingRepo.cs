@@ -25,8 +25,9 @@ namespace ensektest.Repositories
             try
             {
                 _dbContext.MeterReadings.Add(meterReading);
+                _dbContext.SaveChanges();
 
-                    return true;
+                return true;
 
                 
             }
@@ -48,6 +49,12 @@ namespace ensektest.Repositories
           
                 return _dbContext.MeterReadings.Any(x => x.MeterReadValue == readValue && x.AccountId == accountNum);
             
+        }
+
+        public void SaveSeedData(IEnumerable<CustomerAccount> customerAccounts)
+        {
+            _dbContext.CustomerAccounts.AddRange(customerAccounts);
+            _dbContext.SaveChanges();
         }
 
     }
