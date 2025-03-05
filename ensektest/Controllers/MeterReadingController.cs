@@ -11,6 +11,9 @@ namespace ensektest.Controllers
     {       
         private readonly ILogger<MeterReadingController> _logger;
         private readonly IMeterReadingService _meterReadingService;
+        private readonly string meterRoute = @"\\Meter_Reading.csv";
+        private readonly string accountRoute = @"\\Test_Accounts.csv";
+
         public MeterReadingController(ILogger<MeterReadingController> logger, IMeterReadingService meterReadingService)
         {
             _logger = logger;
@@ -20,7 +23,7 @@ namespace ensektest.Controllers
         [HttpPost("meter-reading-uploads")]
         public IActionResult MeterReadingUploads()
         {
-           var csvResponse = _meterReadingService.ReadCsvFile(@"C:\\Users\\dpalu\\Downloads\\ENSEK Remote Technical Task Brief\\Meter_Reading.csv");
+           var csvResponse = _meterReadingService.ReadCsvFile(meterRoute);
             
             var saveResponse = _meterReadingService.SaveMeterReading(csvResponse);
 
@@ -30,7 +33,7 @@ namespace ensektest.Controllers
         [HttpPost("seed")]
         public IActionResult SeedDb()
         {
-            var response = _meterReadingService.ReadAccountCsvFile(@"C:\\Users\\dpalu\\Downloads\\ENSEK Remote Technical Task Brief\\Test_Accounts.csv");
+            var response = _meterReadingService.ReadAccountCsvFile(accountRoute);
             return Ok();
         }
     }
