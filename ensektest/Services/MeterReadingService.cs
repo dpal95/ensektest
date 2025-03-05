@@ -1,12 +1,15 @@
-﻿using CsvHelper;
+﻿using Azure;
+using CsvHelper;
 using CsvHelper.Configuration;
 using ensektest.Entities;
+using ensektest.Mapper;
 using ensektest.Models;
 using ensektest.Repositories;
 using ensektest.Responces;
 using System;
 using System.Formats.Asn1;
 using System.Globalization;
+using System.Security.Cryptography.Xml;
 
 namespace ensektest.Services
 {
@@ -20,15 +23,10 @@ namespace ensektest.Services
         }
         private bool IsValidReading(decimal reading)
         {
-            if (reading < 0)
+            if (reading < 0 || reading > 10000)
             {
                 return false;
-            }
-            if (reading > 100000)
-            {
-                return false;
-            }
-
+            }      
             return true;
         }
 
@@ -118,27 +116,36 @@ namespace ensektest.Services
         }
 
 
-        public bool SaveMeterReading(MeterReadingModel meterReading)
+        public MeterReadingResponse SaveMeterReading(CsvReadResponse csvReadResponse)
         {
-            var checkAccount = GetCustomerAccount(meterReading.AccountId);
+            MeterReadingResponse response = new MeterReadingResponse() { FailureReadings = csvReadResponse.FailureReadings};
 
-            if (checkAccount != null)
-            {
-                if (!CheckForReading(meterReading.MeterReadValue, meterReading.AccountId))
+            foreach (var meterReading in csvReadResponse.SuccessReadings)
+            {              
+
+                var checkAccount = GetCustomerAccount(meterReading.AccountId);
+
+                if (checkAccount != null)
                 {
-                    MeterReading meterWrite = new MeterReading()
+                    if (!CheckForReading(meterReading.MeterReadValue, meterReading.AccountId))
                     {
-                        AccountId = meterReading.AccountId,
-                        MeterReadingDateTime = meterReading.MeterReadingDateTime,
-                        MeterReadValue = meterReading.MeterReadValue,
+                        MeterReading meterWrite = new MeterReading()
+                        {
+                            AccountId = meterReading.AccountId,
+                            MeterReadingDateTime = meterReading.MeterReadingDateTime,
+                            MeterReadValue = meterReading.MeterReadValue,
+                        };
+                        _meterReadingRepo.SaveMeterReading(meterWrite);//save reading 
+
+                        response.SuccessReadings++;
+                        continue;
                     };
-                    _meterReadingRepo.SaveMeterReading(meterWrite);//save reading 
 
-                    return true;
-                };
-
+                }
+                response.FailureReadings++;
             }
-            return false;
+
+            return response;
         }
 
         private CustomerAccountModel? GetCustomerAccount(int accountNum)
@@ -158,18 +165,6 @@ namespace ensektest.Services
             return _meterReadingRepo.CheckForReading(readValue, accountNum);
         }
 
-    }
-
-    public class MeterReadingMap : ClassMap<MeterReadingModel>
-    {
-        public MeterReadingMap()
-        {
-            Map(m => m.AccountId).Name("AccountId");
-            Map(m => m.MeterReadingDateTime)
-                .Name("MeterReadingDateTime")
-                .TypeConverterOption.Format("dd/MM/yyyy HH:mm"); // Use correct date format
-            Map(m => m.MeterReadValue).Name("MeterReadValue");
-        }
     }
 
 }

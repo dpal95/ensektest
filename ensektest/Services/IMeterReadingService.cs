@@ -14,8 +14,7 @@ namespace ensektest.Services
         public CsvReadResponse ReadCsvFile(string filePath);
         public CsvReadResponse ReadAccountCsvFile(string filePath);
 
-        public bool SaveMeterReading(MeterReadingModel meterReading);
-        
+        public MeterReadingResponse SaveMeterReading(CsvReadResponse csvReadResponse);
 
     }
 
